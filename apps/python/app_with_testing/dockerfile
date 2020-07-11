@@ -1,0 +1,19 @@
+FROM teqniqly/python:latest as test
+
+WORKDIR /app
+
+COPY test_requirements.txt ./
+RUN pip install -r test_requirements.txt
+
+COPY app.py ./
+COPY test/ ./test
+
+RUN pytest --rootdir=test
+
+FROM teqniqly/python:latest
+
+WORKDIR /app
+
+COPY --from=test /app/app.py ./
+
+ENTRYPOINT ["python", "-m", "app"]
