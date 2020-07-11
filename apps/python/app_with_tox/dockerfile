@@ -1,0 +1,32 @@
+FROM teqniqly/python:latest as test_py38
+
+WORKDIR /app
+
+COPY test_requirements.txt ./
+RUN pip install -r test_requirements.txt
+
+COPY ./ ./
+
+COPY test/ ./test
+
+RUN tox
+
+FROM python:3.7.8-alpine3.12 as test_py37
+
+WORKDIR /app
+
+COPY test_requirements.txt ./
+RUN pip install -r test_requirements.txt
+
+COPY ./ ./
+COPY test/ ./test
+
+RUN tox
+
+FROM teqniqly/python:latest
+
+WORKDIR /app
+
+COPY --from=test_py38 /app/app.py ./
+
+ENTRYPOINT ["python", "-m", "app"]
